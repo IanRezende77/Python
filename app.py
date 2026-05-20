@@ -1,35 +1,30 @@
-from flask import Flask
+from flask import Flask, render_template
 
 app = Flask(__name__)
 
-@app.route('/decorator')
+@app.route("/")
+def home():
+    nome = "Carlos"
+    idade = 16
 
-def explicar_decorator():
-    return """
-    <h1>Decorators em Python</h1>
+    usuario = {
+        "nome": "Carlos",
+        "email": "carlos@email.com"
+    }
 
-    <h2>O que é um decorator?</h2>
-    <p>
-    Um decorator é uma função que modifica o comportamento de outra função
-    sem alterar diretamente seu código.
-    </p>
+    alunos = ["João", "Maria", "Pedro"]
 
-    <h2>Para que serve?</h2>
-    <p>
-    Serve para reutilizar código, adicionar funcionalidades como validação,
-    autenticação, logs, entre outros.
-    </p>
+    nota = 8
 
-    <h2>Como é utilizado no Flask?</h2>
-    <p>
-    No Flask, usamos decorators para definir rotas.
-    Exemplo: <b>@app.route('/decorator')</b>
-    </p>
 
-    <p>
-    Esse decorator associa a função a uma URL específica.
-    </p>
-    """
-    
-if __name__ == '__main__':
+    return render_template(
+        "index.html",
+        nome=nome,
+        idade=idade,
+        usuario=usuario,
+        alunos=alunos,
+        nota=nota
+    )
+
+if __name__ == "__main__":
     app.run(debug=True)
