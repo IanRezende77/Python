@@ -1,109 +1,143 @@
-"""
-AulaSQLalchemy — Flask + SQLAlchemy (simples, sem MVC)
-CRUD de alunos em um único arquivo.
-"""
-
+from flask import Flask, render_template, request, redirect, url_for
+from flask_sqlalchemy import SQLAlchemy  # feito
 import os
-
-from flask import Flask, redirect, render_template, request, url_for
-from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
-pasta_aula = os.path.abspath(os.path.dirname(__file__))
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(
-    pasta_aula, "alunos.db"
-)
+# feito
+app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{os.path.join(os.path.dirname(__file__), 'loja.db')}"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
+# feito
 db = SQLAlchemy(app)
 
 
-# --- MODEL (tabela no banco) ---
-class Aluno(db.Model):
-    __tablename__ = "alunos"
+# feito
+class Produto(db.Model):
+    __tablename__ = "produtos"
 
     id = db.Column(db.Integer, primary_key=True)
-    nome = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(120), nullable=False)
+    nome = db.Column(db.String(120), nullable=False)
+    categoria = db.Column(db.String(60), nullable=False)
+    preco = db.Column(db.Float, nullable=False)
+    estoque = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):
-        return f"<Aluno {self.id} {self.nome}>"
+        return f"<Produto {self.nome}>"
 
 
+# feito
 with app.app_context():
     db.create_all()
 
 
-# --- READ — listar ---
+# LISTAR
 @app.route("/")
-def index():
-    alunos = Aluno.query.order_by((Aluno.id).desc()).all()
-    return render_template("lista.html", alunos=alunos)
+def lista_produtos():
+    # feito
+    produtos = Produto.query.order_by(Produto.nome).all()
+    return render_template("lista.html", produtos=produtos)
 
 
-# --- CREATE — cadastrar ---
+# CADASTRAR
 @app.route("/cadastrar", methods=["GET", "POST"])
-def cadastrar():
-    if request.method == "POST":
-        nome = request.form.get("nome", "").strip()
-        email = request.form.get("email", "").strip()
-        if not nome or not email:
-            return render_template(
-                "forms.html",
-                titulo="Cadastrar aluno",
-                erro="Preencha nome e e-mail.",
-                nome=nome,
-                email=email,
-            )
-        aluno = Aluno(nome=nome, email=email)
-        db.session.add(aluno)
-        db.session.commit()
-        return redirect(url_for("index"))
-    return render_template("forms.html", titulo="Cadastrar aluno")
-
-
-# --- UPDATE — editar ---
-@app.route("/editar/<int:aluno_id>", methods=["GET", "POST"])
-def editar(aluno_id):
-    aluno = db.session.get(Aluno, aluno_id)
-    if not aluno:
-        return redirect(url_for("index"))
+def cadastrar_produto():
 
     if request.method == "POST":
+
         nome = request.form.get("nome", "").strip()
-        email = request.form.get("email", "").strip()
-        if not nome or not email:
+        categoria = request.form.get("categoria", "").strip()
+
+        try:
+            preco = float(request.form.get("preco", 0))
+        except:
+            preco = 0
+
+        try:
+            estoque = int(request.form.get("estoque", 0))
+        except:
+            estoque = -1
+
+        # feito
+        if not nome or not categoria or preco <= 0 or estoque < 0:
+            erro = "Preencha os campos corretamente."
             return render_template(
-                "forms.html",
-                titulo="Editar aluno",
-                erro="Preencha nome e e-mail.",
-                nome=nome,
-                email=email,
-                aluno_id=aluno.id,
+                "formulario.html",
+                produto=None,
+                erro=erro
             )
-        aluno.nome = nome
-        aluno.email = email
+
+        # feito
+        produto = Produto(
+            nome=nome,
+            categoria=categoria,
+            preco=preco,
+            estoque=estoque
+        )
+
+        db.session.add(produto)
         db.session.commit()
-        return redirect(url_for("index"))
 
-    return render_template(
-        "forms.html",
-        titulo="Editar aluno",
-        nome=aluno.nome,
-        email=aluno.email,
-        aluno_id=aluno.id,
-    )
+        return redirect(url_for("lista_produtos"))
+
+    return render_template("formulario.html", produto=None)
 
 
-# --- DELETE — excluir ---
-@app.route("/excluir/<int:aluno_id>", methods=["POST"])
-def excluir(aluno_id):
-    aluno = db.session.get(Aluno, aluno_id)
-    if aluno:
-        db.session.delete(aluno)
+# EDITAR
+@app.route("/editar/<int:produto_id>", methods=["GET", "POST"])
+def editar_produto(produto_id):
+
+    # feito
+    produto = Produto.query.get_or_404(produto_id)
+
+    if request.method == "POST":
+
+        nome = request.form.get("nome", "").strip()
+        categoria = request.form.get("categoria", "").strip()
+
+        try:
+            preco = float(request.form.get("preco", 0))
+        except:
+            preco = 0
+
+        try:
+            estoque = int(request.form.get("estoque", 0))
+        except:
+            estoque = -1
+
+        # feito
+        if not nome or not categoria or preco <= 0 or estoque < 0:
+            erro = "Preencha os campos corretamente."
+            return render_template(
+                "formulario.html",
+                produto=produto,
+                erro=erro
+            )
+
+        # feito
+        produto.nome = nome
+        produto.categoria = categoria
+        produto.preco = preco
+        produto.estoque = estoque
+
         db.session.commit()
-    return redirect(url_for("index"))
+
+        return redirect(url_for("lista_produtos"))
+
+    return render_template("formulario.html", produto=produto)
+
+
+# EXCLUIR
+@app.route("/excluir/<int:produto_id>", methods=["POST"])
+def excluir_produto(produto_id):
+
+    # feito
+    produto = Produto.query.get_or_404(produto_id)
+
+    db.session.delete(produto)
+    db.session.commit()
+
+    return redirect(url_for("lista_produtos"))
 
 
 if __name__ == "__main__":
