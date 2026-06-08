@@ -1,55 +1,97 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Calculadora Flask</title>
+    <title>Calculadora com histórico</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
 
-    <div class="container">
-        <h1>Calculadora</h1>
+    <h1>Calculadora</h1>
+    <p class="subtitulo">Aula 10 — MVC + SQLite + SQLAlchemy</p>
 
-        <form method="POST" action="/">
-            <input type="number" step="any" name="num1" placeholder="Número 1" required>
+    <!-- VIEW: formulário envia POST ao Controller; não calcula aqui -->
+    <div class="layout">
+        <div id="calculator">
+            <form method="POST" action="{{ url_for('calculadora.index') }}">
+                <div class="form-grupo">
+                    <label for="num1">Primeiro número</label>
+                    <input type="number" id="num1" name="num1" step="any" required
+                           value="{{ request.form.get('num1', '') }}">
+                </div>
 
-            <select name="operacao" id="operacao" onchange="toggleNum2()">
-                <option value="somar">Somar</option>
-                <option value="subtrair">Subtrair</option>
-                <option value="multiplicar">Multiplicar</option>
-                <option value="dividir">Dividir</option>
-                <option value="potencia">Potência</option>
-                <option value="sqrt">Raiz Quadrada</option>
-                <option value="log">Logaritmo</option>
-            </select>
+                <div class="form-grupo">
+                    <label for="operacao">Operação</label>
+                    {% set op = request.form.get('operacao', '+') %}
+                    <select id="operacao" name="operacao" required onchange="atualizarNum2()">
+                        <option value="+" {% if op == '+' %}selected{% endif %}>+ Somar</option>
+                        <option value="-" {% if op == '-' %}selected{% endif %}>− Subtrair</option>
+                        <option value="*" {% if op == '*' %}selected{% endif %}>× Multiplicar</option>
+                        <option value="/" {% if op == '/' %}selected{% endif %}>÷ Dividir</option>
+                        <option value="**" {% if op == '**' %}selected{% endif %}>^ Potência</option>
+                        <option value="sqrt" {% if op == 'sqrt' %}selected{% endif %}>√ Raiz quadrada</option>
+                    </select>
+                </div>
 
-            <input type="number" step="any" name="num2" id="num2" placeholder="Número 2">
+                <div class="form-grupo" id="grupo-num2">
+                    <label for="num2">Segundo número</label>
+                    <input type="number" id="num2" name="num2" step="any"
+                           value="{{ request.form.get('num2', '') }}">
+                </div>
 
-            <button type="submit">Calcular</button>
-        </form>
+                <button type="submit">Calcular</button>
+            </form>
 
-        <a href="/">Limpar</a>
+            {# Jinja: só exibe se o Controller passou etapas após o cálculo #}
+            {% if etapas %}
+            <div class="resultado">
+                <strong>Resposta do servidor (Python):</strong>
+                <div>{{ etapas }}</div>
+                <div>Resultado: {{ resultados }}</div>
+            </div>
+            {% endif %}
 
-        {% if resultado %}
-            <p class="resultado">{{ resultado }}</p>
-        {% endif %}
+            <a href="{{ url_for('calculadora.index') }}">Limpar / nova conta</a>
+        </div>
 
-        {% if erro %}
-            <p class="erro">{{ erro }}</p>
-        {% endif %}
+        <aside class="historico">
+            <h2>Histórico no banco</h2>
+            {# Jinja: historico = lista de Operacao vinda do Model via Controller #}
+            {% if historico %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Conta</th>
+                        <th>Data</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in historico %}
+                    <tr>
+                        <td>{{ item.id }}</td>
+                        <td>{{ item.etapas }}</td>
+                        <td>{{ item.criado_em.strftime('%d/%m/%Y %H:%M') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="vazio">Nenhuma operação salva ainda.</p>
+            {% endif %}
+        </aside>
     </div>
 
     <script>
-        function toggleNum2() {
-            let op = document.getElementById("operacao").value;
-            let num2 = document.getElementById("num2");
-
-            if (op === "sqrt" || op === "log") {
-                num2.style.display = "none";
-            } else {
-                num2.style.display = "block";
-            }
+        function atualizarNum2() {
+            const raiz = document.getElementById("operacao").value === "sqrt";
+            const grupo = document.getElementById("grupo-num2");
+            const num2 = document.getElementById("num2");
+            grupo.style.display = raiz ? "none" : "block";
+            num2.required = !raiz;
+            if (raiz) num2.value = "";
         }
+        atualizarNum2();
     </script>
 
 </body>
