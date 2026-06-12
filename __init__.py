@@ -1,3 +1,3 @@
-from .calculadora_controller import calculadora_bp
+from .figurinhas_controller import figurinhas_bp
 
-__all__ = ["calculadora_bp"]
+__all__ = ["figurinhas_bp"]
