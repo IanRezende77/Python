@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Clientes - Lanchonete MVC{% endblock %}
+
+{% block content %}
+<section class="cabecalho-pagina">
+    <div>
+        <p class="tag">Clientes</p>
+        <h1>Clientes cadastrados</h1>
+        <p>Cadastre e consulte os clientes da lanchonete.</p>
+    </div>
+</section>
+
+<section class="painel-formulario">
+    <h2>Novo cliente</h2>
+    <form method="POST" action="{{ url_for('cliente.listar_clientes') }}" class="formulario">
+        <label>
+            Nome
+            <input type="text" name="nome" placeholder="Ex: Maria Oliveira" required>
+        </label>
+
+        <label>
+            Telefone
+            <input type="text" name="telefone" placeholder="Ex: (31) 99999-0000" required>
+        </label>
+
+        <label>
+            Pontos de fidelidade
+            <input type="number" name="pontos_fidelidade" min="0" value="0" required>
+        </label>
+
+        <button type="submit" class="botao">Cadastrar cliente</button>
+    </form>
+</section>
+
+<section class="tabela-card">
+    <h2>Listagem</h2>
+    {% if clientes %}
+        <div class="tabela-responsiva">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Telefone</th>
+                        <th>Pontos</th>
+                        <th>Criado em</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cliente in clientes %}
+                        <tr>
+                            <td>{{ cliente.id }}</td>
+                            <td>{{ cliente.nome }}</td>
+                            <td>{{ cliente.telefone }}</td>
+                            <td>{{ cliente.pontos_fidelidade }}</td>
+                            <td>{{ cliente.data_criacao.strftime('%d/%m/%Y %H:%M') }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="vazio">Nenhum cliente cadastrado ainda.</p>
+    {% endif %}
+</section>
+{% endblock %}

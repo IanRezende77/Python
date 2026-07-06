@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Lanchonete MVC{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="topo">
+        <nav class="menu container">
+            <a class="logo" href="{{ url_for('home.index') }}">Lanchonete MVC</a>
+            <div class="links-menu">
+                <a href="{{ url_for('home.index') }}">Home</a>
+                <a href="{{ url_for('cliente.listar_clientes') }}">Clientes</a>
+                <a href="{{ url_for('fornecedor.listar_fornecedores') }}">Fornecedores</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container conteudo">
+        {% with mensagens = get_flashed_messages(with_categories=true) %}
+            {% if mensagens %}
+                <section class="mensagens">
+                    {% for categoria, mensagem in mensagens %}
+                        <p class="alerta {{ categoria }}">{{ mensagem }}</p>
+                    {% endfor %}
+                </section>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="rodape">
+        <p>Sistema interno de gestao da lanchonete - Flask + MVC + SQLAlchemy</p>
+    </footer>
+</body>
+</html>

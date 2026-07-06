@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Lanchonete MVC{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div>
+        <p class="tag">Painel inicial</p>
+        <h1>Bem-vindo ao sistema de gestao da lanchonete</h1>
+        <p>
+            Aplicacao Flask organizada no padrao MVC, com Blueprints,
+            persistencia em SQLite e templates reutilizaveis com Jinja2.
+        </p>
+        <div class="acoes">
+            <a class="botao" href="{{ url_for('cliente.listar_clientes') }}">Gerenciar clientes</a>
+            <a class="botao secundario" href="{{ url_for('fornecedor.listar_fornecedores') }}">Gerenciar fornecedores</a>
+        </div>
+    </div>
+</section>
+
+<section class="cards">
+    <article class="card">
+        <span class="numero">{{ total_clientes }}</span>
+        <h2>Clientes cadastrados</h2>
+        <p>Controle dos clientes e seus pontos de fidelidade.</p>
+    </article>
+
+    <article class="card">
+        <span class="numero">{{ total_fornecedores }}</span>
+        <h2>Fornecedores parceiros</h2>
+        <p>Cadastro dos fornecedores e dos produtos fornecidos.</p>
+    </article>
+</section>
+{% endblock %}

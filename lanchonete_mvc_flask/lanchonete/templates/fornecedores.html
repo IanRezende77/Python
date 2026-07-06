@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Fornecedores - Lanchonete MVC{% endblock %}
+
+{% block content %}
+<section class="cabecalho-pagina">
+    <div>
+        <p class="tag">Fornecedores</p>
+        <h1>Fornecedores parceiros</h1>
+        <p>Cadastre e consulte os fornecedores de insumos da lanchonete.</p>
+    </div>
+</section>
+
+<section class="painel-formulario">
+    <h2>Novo fornecedor</h2>
+    <form method="POST" action="{{ url_for('fornecedor.listar_fornecedores') }}" class="formulario">
+        <label>
+            Nome da empresa
+            <input type="text" name="nome_empresa" placeholder="Ex: Distribuidora Bom Lanche" required>
+        </label>
+
+        <label>
+            CNPJ
+            <input type="text" name="cnpj" placeholder="Ex: 00.000.000/0001-00" required>
+        </label>
+
+        <label>
+            Produto fornecido
+            <input type="text" name="produto_fornecido" placeholder="Ex: Paes, carnes ou bebidas" required>
+        </label>
+
+        <button type="submit" class="botao">Cadastrar fornecedor</button>
+    </form>
+</section>
+
+<section class="tabela-card">
+    <h2>Listagem</h2>
+    {% if fornecedores %}
+        <div class="tabela-responsiva">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Empresa</th>
+                        <th>CNPJ</th>
+                        <th>Produto fornecido</th>
+                        <th>Criado em</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fornecedor in fornecedores %}
+                        <tr>
+                            <td>{{ fornecedor.id }}</td>
+                            <td>{{ fornecedor.nome_empresa }}</td>
+                            <td>{{ fornecedor.cnpj }}</td>
+                            <td>{{ fornecedor.produto_fornecido }}</td>
+                            <td>{{ fornecedor.data_criacao.strftime('%d/%m/%Y %H:%M') }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="vazio">Nenhum fornecedor cadastrado ainda.</p>
+    {% endif %}
+</section>
+{% endblock %}
